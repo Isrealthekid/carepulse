@@ -10,9 +10,9 @@ import { Input } from "@/components/ui/input"
 import CustomFormField  from "../ui/CustomFormField";
 import SubmitButton from "../ui/SubmitButton"
 import { useState } from "react"
-import { UserFormValidation } from "@/lib/validation"
+import{ UserFormValidation } from "@/lib/validation"
 import { useRouter } from "next/navigation"
-import 
+import { createUser } from "@/lib/actions/patient.actions"
 
 
 export enum FormFieldType {
@@ -42,7 +42,7 @@ const PatientForm = () => {
   })
  
   // 2. Define a submit handler.
-  function onSubmit({ name, email, phone}: z.infer<typeof UserFormValidation>) {
+  async function onSubmit ({ name, email, phone}: z.infer<typeof UserFormValidation>) {
     setIsLoading(true);
 
     try {
@@ -57,7 +57,7 @@ const PatientForm = () => {
 
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(name, email, phone)
+    // console.log(name, email, phone)
   }
 
   return (
@@ -103,7 +103,7 @@ const PatientForm = () => {
               dateFormat={""}
          />
 
-          <SubmitButton isLoading={isLoading}>
+          <SubmitButton isLoading={isLoading} >
             Get Started
           </SubmitButton>
         </form>
