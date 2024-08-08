@@ -15,11 +15,12 @@ import { useRouter } from "next/navigation"
 import { createUser } from "@/lib/actions/patient.actions"
 import { FormFieldType } from "./PatientForm"
 import { RadioGroup } from "../ui/radio-group"
-import { Doctors, GenderOptions } from "@/constants"
+import { Doctors, GenderOptions, IdentificationTypes } from "@/constants"
 import { RadioGroupItem } from "../ui/radio-group"
 import { Label } from "../ui/label"
 import { SelectItem } from "../ui/select"
 import Image from "next/image"
+import FileUploader from "../ui/FileUploader"
 
  
 const RegisterForm = ({user}: { user: User }) => {
@@ -289,7 +290,96 @@ const RegisterForm = ({user}: { user: User }) => {
 
         </div>
 
+        <div className="flex flex-col gap-6 xl:flex-row">
+          <CustomFormField
+            fieldType={FormFieldType.TEXTAREA}
+            control={form.control}
+            name="familyMedicalHistory"
+            label="Family Medical History"
+            placeholder="Mother had brain cancer, Father had heart disease"
+            iconSrc=""
+            iconAlt=""
+            dateFormat={""}
+            
+          />
 
+          <CustomFormField
+            fieldType={FormFieldType.TEXTAREA}
+            control={form.control}
+            name="pastMedicalHistory"
+            label="Past Medical History"
+            placeholder="Appendectomy, Tonsillectomy"
+            iconSrc=""
+            iconAlt=""
+            dateFormat={""}
+            
+          />          
+
+        </div>
+
+
+        <section className="space-y-6">
+          <div className="mb-9 space-y-1">
+              <h2 className="sub-header">Identification and Verification</h2>
+          </div>
+        </section>
+
+
+        
+
+        <CustomFormField
+                fieldType={FormFieldType.SELECT}
+                control={form.control}
+                name="identificationType"
+                label="Identification Type"
+                placeholder="Select an Identification Type"
+                iconSrc=""
+                iconAlt=""
+                dateFormat={""}
+        > 
+        {IdentificationTypes.map((type) => (
+          <SelectItem key={type} value={type}>
+            {type}          
+
+          </SelectItem>
+        ) )}
+        </CustomFormField>
+
+
+        <CustomFormField
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="identificationNumber"
+            label="Identification Number"
+            placeholder="1234567890"
+            iconSrc=""
+            iconAlt=""
+            dateFormat={""}
+            
+          />
+
+
+          <CustomFormField
+              fieldType={FormFieldType.SKELETON}
+              control={form.control}
+              name="identificationDocument"
+              label="Scanned Copy of Identification Document"
+              
+              renderSkeleton={(field) => (
+                <FormControl>
+                  <FileUploader files={field.value} onChange={field.onChange}/>
+                </FormControl>
+              )}         
+          />
+
+        <section className="space-y-6">
+          <div className="mb-9 space-y-1">
+              <h2 className="sub-header">Consent and Privacy</h2>
+          </div>
+        </section>
+        
+
+        
 
 
 
