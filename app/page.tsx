@@ -20,7 +20,7 @@ export default function Home() {
 
         <PatientForm />
 
-         <p className="copyright py-12"> © 2024 CarePulse</p>
+         <p className="copyright py-12"> © 2024 CarePulse </p>
                 
       </div>
     </section> 
