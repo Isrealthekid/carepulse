@@ -10,41 +10,69 @@ import { Input } from "@/components/ui/input"
 import CustomFormField  from "../ui/CustomFormField";
 import SubmitButton from "../ui/SubmitButton"
 import { useState } from "react"
-import{ UserFormValidation } from "@/lib/validation"
+import{ AppointmentFormValidation } from "@/lib/validation"
 import { useRouter } from "next/navigation"
 import { createUser } from "@/lib/actions/patient.actions"
 import { FormFieldType } from "./PatientForm"
+import { Doctors } from "@/constants"
+import { SelectItem } from "../ui/select"
+import Image from "next/image"
 
 
  
 const AppointmentForm = ({ userId, patientId,  type}: {
   userId: string;
   patientId: string;
-  type: "create" | "cancel";
+  type: "create" | "cancel" | "schedule";
 }) => {
   const router = useRouter();
   const[isLoading, setIsLoading] = useState(false);
 
   // 1. Define your form.
-  const form = useForm<z.infer<typeof UserFormValidation>>({
-    resolver: zodResolver(UserFormValidation),
+  const form = useForm<z.infer<typeof AppointmentFormValidation>>({
+    resolver: zodResolver(AppointmentFormValidation),
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
+      primaryPhysician:"",
+      schedule: new Date(),
+      reason:"",
+      note:"",
+      cancellationReason:"",
+
     },
   })
  
   // 2. Define a submit handler.
-  async function onSubmit ({ name, email, phone}: z.infer<typeof UserFormValidation>) {
+  async function onSubmit (values: z.infer<typeof AppointmentFormValidation>) {
     setIsLoading(true);
 
+    let status;
+    switch(type){
+      case "schedule":
+        status = 'scheduled';
+        break;
+      case 'cancel':
+        status = 'cancelled'
+        break;
+      default:
+        status ="pending";
+        break;
+    }
+
     try {
-      const userData = { name, email, phone };
+      if (type === 'create' && patientId) {
+        const appointmentData = {
+          userId,
+          patient: patientId,
+          primaryPhysician: values.primaryPhysician,
+          schedule:new Date(values.schedule),
+          reason: values.reason,
+          note: values.note,
+          status: status as Status,
 
-      const user = await createUser(userData);
+        }
+      }
 
-      if(user) router.push(`/patients/${user.$id}/register`)
+      const appointment = await createAppointment(appointData);
     } catch (error) {
       console.log(error)
     }
@@ -52,8 +80,26 @@ const AppointmentForm = ({ userId, patientId,  type}: {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     // console.log(name, email, phone)
+    setIsLoading(false)
   }
 
+
+  let buttonLabel;
+
+  switch(type) {
+    case "cancel":
+      buttonLabel = "Cancel Appointment";
+      break;
+    case "create":
+      buttonLabel = "Create Appointment";
+      break;
+    case "schedule":
+      buttonLabel = "Schedule Appointment";
+      default:
+        break;
+  }
+
+  
   return (
 
 
@@ -63,43 +109,76 @@ const AppointmentForm = ({ userId, patientId,  type}: {
             <h1 className="header">New Appointment</h1>
             <p className="text-dark-700">Request a new appointment ASAP</p>
           </section>
-         
-         
-         <CustomFormField
-            fieldType={FormFieldType.INPUT}
+
+          {type !== "cancel" && (
+            <>
+                <CustomFormField
+            fieldType={FormFieldType.SELECT}
             control={form.control}
-            name="name"
-            label="Full Name"
-            placeholder="John Doe"
-            iconSrc="/assets/icons/user.svg"
-            iconAlt="user"
-            dateFormat={""}
-         />
+            name="primaryPhysician"
+            label="Primary care physician"
+            placeholder="Select a Doctor"
+          >
+            {Doctors.map((doctor, i) => (
+              <SelectItem key={doctor.name + i} value={doctor.name}>
+                <div className="flex cursor-pointer items-center gap-2">
+                  <Image
+                    src={doctor.image}
+                    width={32}
+                    height={32}
+                    alt="doctor"
+                    className="rounded-full border border-dark-500"
+                  />
+                  <p>{doctor.name}</p>
+                </div>
+              </SelectItem>
+            ))}
+          </CustomFormField>
 
           <CustomFormField
-              fieldType={FormFieldType.INPUT}
+              fieldType={FormFieldType.DATE_PICKER}
               control={form.control}
-              name="email"
-              label="Email"
-              placeholder="example@email.com"
-              iconSrc="/assets/icons/email.svg"
-              iconAlt="email"
-              dateFormat={""}
-         />
+              name="schedule"
+              label="Expected appointent date"
+              showTimeSelect
+              dateFormat="MM/dd/yy - h:mm aa"
+            />
 
-          <CustomFormField
-              fieldType={FormFieldType.PHONE_INPUT}
-              control={form.control}
-              name="phone"
-              label="Phone Number"
-              placeholder="(123) 456-789"
-              iconSrc=""
-              iconAlt=""
-              dateFormat={""}
-         />
+            <div className="flex flex-col gap-6 xl:flex-row">
+              <CustomFormField
+                fieldType={FormFieldType.TEXTAREA}
+                control={form.control}
+                name="reason"
+                label="Reason for appointment"
+                placeholder="Reason for appointment"
+              />
 
-          <SubmitButton isLoading={isLoading} >
-            Get Started
+                <CustomFormField
+                fieldType={FormFieldType.TEXTAREA}
+                control={form.control}
+                name="note"
+                label="Notes"
+                placeholder="Enter notes"
+              />
+            </div>
+
+            </>
+          )}
+         
+         {type === "cancel" && (
+            <CustomFormField
+            fieldType={FormFieldType.TEXTAREA}
+            control={form.control}
+            name="cancellationReason"
+            label="Reason for cancellation"
+            placeholder="Enter reason for cancellation" 
+          />
+         )}
+         
+        
+
+          <SubmitButton isLoading={isLoading} className={`${type === 'cancel' ? 'shad-danger-btn' : 'shad-primary-btn'} w-full`}>
+            {buttonLabel}
           </SubmitButton>
         </form>
       </Form>
