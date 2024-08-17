@@ -39,7 +39,6 @@ export const getUser = async(userId: string) => {
         console.log(error)
     }
 }
-
 export const getPatient = async(userId: string) => {
     try {
         const patients = await databases.listDocuments(

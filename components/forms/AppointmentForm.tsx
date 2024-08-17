@@ -10,13 +10,14 @@ import { Input } from "@/components/ui/input"
 import CustomFormField  from "../ui/CustomFormField";
 import SubmitButton from "../ui/SubmitButton"
 import { useState } from "react"
-import{ AppointmentFormValidation } from "@/lib/validation"
+import{ AppointmentFormValidation, getAppointmentSchema } from "@/lib/validation"
 import { useRouter } from "next/navigation"
 import { createUser } from "@/lib/actions/patient.actions"
 import { FormFieldType } from "./PatientForm"
 import { Doctors } from "@/constants"
 import { SelectItem } from "../ui/select"
 import Image from "next/image"
+import { createAppointment } from "@/lib/actions/appointment.actions"
 
 
  
@@ -27,6 +28,8 @@ const AppointmentForm = ({ userId, patientId,  type}: {
 }) => {
   const router = useRouter();
   const[isLoading, setIsLoading] = useState(false);
+
+  const AppointmentFormValidation = getAppointmentSchema(type);
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof AppointmentFormValidation>>({
@@ -58,21 +61,32 @@ const AppointmentForm = ({ userId, patientId,  type}: {
         break;
     }
 
+    console.log("BEFORE " ,type)
     try {
       if (type === 'create' && patientId) {
+
+        console.log('IM HERE ')
         const appointmentData = {
           userId,
           patient: patientId,
           primaryPhysician: values.primaryPhysician,
-          schedule:new Date(values.schedule),
-          reason: values.reason,
+          schedule: new Date(values.schedule),
+          reason: values.reason!,
           note: values.note,
           status: status as Status,
 
         }
+        const appointment = await createAppointment(appointmentData);
+          console.log("IN APPOINTMENT")
+
+          console.log(appointment)
+        if(appointment) {
+          form.reset();
+          router.push(`/patients/${userId}/new-appointment/success?appointmentId=${appointment.id}`)
+        }
       }
 
-      const appointment = await createAppointment(appointData);
+      
     } catch (error) {
       console.log(error)
     }
@@ -141,7 +155,7 @@ const AppointmentForm = ({ userId, patientId,  type}: {
               name="schedule"
               label="Expected appointent date"
               showTimeSelect
-              dateFormat="MM/dd/yy - h:mm aa"
+              dateFormat="MM/dd/yyyy - h:mm aa"
             />
 
             <div className="flex flex-col gap-6 xl:flex-row">
