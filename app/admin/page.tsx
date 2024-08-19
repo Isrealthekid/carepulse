@@ -1,12 +1,17 @@
-import columns from '@/components/forms/table/columns'
-import DataTable from '@/components/forms/table/DataTable'
+import { columns, Payment }from '@/components/forms/table/columns'
+import { DataTable } from '@/components/forms/table/DataTable'
 import StatCard from '@/components/ui/StatCard'
 import { getRecentAppointmentList } from '@/lib/actions/appointment.actions'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
+
+
+
 const Admin = async () => {
+
+
     const appointments = await getRecentAppointmentList()
 
   return (
@@ -55,10 +60,12 @@ const Admin = async () => {
                 />
             </section>
 
-            <DataTable 
-                colums={columns}
+             <DataTable 
+                columns={columns}
                 data={appointments.documents}
-            />
+            /> 
+
+            {/* <DataTable  columns={columns} data={data} /> */}
         </main>
     </div>
   )
