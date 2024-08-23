@@ -376,8 +376,11 @@ const RegisterForm = ({ user }: { user: User }) => {
             privacy policy"
           />
         </section>
-
-        <SubmitButton isLoading={isLoading}>Submit and Continue</SubmitButton>
+          
+        <SubmitButton 
+          isLoading={isLoading}>
+            Submit and Continue
+        </SubmitButton>
       </form>
     </Form>
   );
